@@ -27,7 +27,7 @@ function backtrackRecursive(
 ) {	
   let currLine = newLines[newLines.length - 1];
 
-	// Reached an '@' - add back all lines and do not create a comment
+  // Reached an '@' - add back all lines and do not create a comment
   if (currLine.trim().startsWith('@')) {
     const lineToAddBack = linesToAddBack.pop();
 
@@ -39,19 +39,19 @@ function backtrackRecursive(
     return;
   }
 
-	// Reached the end of a block - pop the last level
-	if (currLine.trim().endsWith('}')) {
-		levels.pop();
-		return;
-	}
+  // Reached the end of a block - pop the last level
+  if (currLine.trim().endsWith('}')) {
+    levels.pop();
+    return;
+  }
 
   // Reached the top of the file, a comment, or an '@' - add back all lines and do not create a comment
   if (
-		lineNumber <= 0
-		|| (currLine.trim().startsWith('//') && !replaceExistingComments)
-		|| currLine.trim().startsWith('*/')
-		|| currLine.trim().startsWith('/*')
-	) {
+    lineNumber <= 0
+    || (currLine.trim().startsWith('//') && !replaceExistingComments)
+    || currLine.trim().startsWith('*/')
+    || currLine.trim().startsWith('/*')
+  ) {
     while (linesToAddBack.length > 0) {
       const lineToAddBack = linesToAddBack.pop();
 
@@ -85,7 +85,7 @@ function backtrackRecursive(
 
     return;
 
-	// Reached the start of a block - start backtracking
+  // Reached the start of a block - start backtracking
   } else if (currLine.trim().endsWith('{')) {
     const lineToAddBack = newLines.pop();
     const commentToMake = lineToAddBack?.split('{')[0].trim();
@@ -100,7 +100,7 @@ function backtrackRecursive(
 
     backtrackRecursive(levels, newLines, lineNumber - 1, linesToAddBack);
 
-	// Reached a comment and the replaceExistingComments setting is on - keep backtracking
+  // Reached a comment and the replaceExistingComments setting is on - keep backtracking
   } else if (currLine.trim().startsWith('//') && replaceExistingComments) {
     newLines.pop();
 

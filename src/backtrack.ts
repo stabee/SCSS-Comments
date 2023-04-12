@@ -139,7 +139,7 @@ function createComments(levels: Array<Array<string>>, idx: number, currString: S
       toAdd = ` ${currString} ${selector}`;
     }
 
-    if (toAdd.trim().endsWith(',') && idx !== levels.length - 1) {
+    if (toAdd.trim().endsWith(',')) {
       toAdd = toAdd.slice(0, -1);
     }
 

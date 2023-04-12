@@ -31,9 +31,8 @@ By default, the extension will not override previously made comments. However, y
 To generate comments for nested selectors, follow these steps:
 
 1. Open a SCSS file in Visual Studio Code.
-2. Select the parent selector of the nested selector you want to comment.
-3. Open the Command Palette (Ctrl+Shift+P) and select "Comment SCSS Nested Selector".
-4. The extension will generate a comment for the selected nested selector.
+2. Open the Command Palette (Ctrl+Shift+P) and select "Comment SCSS Nested Selector".
+3. The extension will generate a comment for all nested selectors.
 
 Note that this extension will not generate comments for top-level parent selectors.
 

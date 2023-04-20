@@ -4,15 +4,12 @@ import * as vscode from 'vscode';
 const config = vscode.workspace.getConfiguration('scss-comments');
 const replaceExistingComments = config.get('replaceExistingComments') as boolean;
 
-// 2d array of SCSS selectors from the previous blocks
-const levels: Array<Array<string>> = [];
-
 /**
  * Backtrack
  * @description Wrapper for the main recursive function
  */
-export default function backtrack(newLines: Array<string>, lineNumber: number) {
-  backtrackRecursive(levels, newLines, lineNumber, []);
+export default function backtrack(newLines: Array<string>, lineNumber: number, levels: Array<Array<string>>) {
+  backtrackRecursive(levels, newLines, lineNumber, [], false);
 }
 
 /**
@@ -23,9 +20,15 @@ function backtrackRecursive(
   levels: Array<Array<string>>,
   newLines: Array<string>,
   lineNumber: number,
-  linesToAddBack: Array<string>
+  linesToAddBack: Array<string>,
+  startedBacktracking: boolean = true,
 ) {	
   let currLine = newLines[newLines.length - 1];
+
+  if (startedBacktracking && (currLine.trim().endsWith('}') || currLine.trim().endsWith('{'))) {
+    buildComments(levels, newLines, linesToAddBack);
+    return;
+  }
 
   // Reached an '@' - add back all lines and do not create a comment
   if (currLine.trim().startsWith('@')) {
@@ -35,7 +38,8 @@ function backtrackRecursive(
       newLines.push(lineToAddBack);
     }
 
-    levels.push([]);
+    levels.push(['']);
+
     return;
   }
 
@@ -49,7 +53,7 @@ function backtrackRecursive(
   if (
     lineNumber <= 0
     || (currLine.trim().startsWith('//') && !replaceExistingComments)
-    || currLine.trim().startsWith('*/')
+    || currLine.trim().endsWith('*/')
     || currLine.trim().startsWith('/*')
   ) {
     while (linesToAddBack.length > 0) {
@@ -65,26 +69,8 @@ function backtrackRecursive(
 
   // Reached an empty line - add comments
   if (currLine.trim().length <= 0) {
-    let comments: Array<String> = [];
-
-    if (levels.length > 1) {
-      createComments(levels, 0, "", comments);
-    }
-
-    while (comments.length > 0) {
-      newLines.push(`${' '.repeat((levels.length - 1) * 2)}// ${comments.pop()}`);
-    }
-
-    while (linesToAddBack.length > 0) {
-      const lineToAddBack = linesToAddBack.pop();
-
-      if (lineToAddBack) {
-        newLines.push(lineToAddBack);
-      }
-    }
-
+    buildComments(levels, newLines, linesToAddBack);
     return;
-
   // Reached the start of a block - start backtracking
   } else if (currLine.trim().endsWith('{')) {
     const lineToAddBack = newLines.pop();
@@ -114,6 +100,29 @@ function backtrackRecursive(
     }
 
     backtrackRecursive(levels, newLines, lineNumber - 1, linesToAddBack);
+  }
+}
+
+/**
+ * Build comments out
+ */
+function buildComments(levels: Array<Array<string>>, newLines: Array<string>, linesToAddBack: Array<string>) {
+  let comments: Array<String> = [];
+
+  if (levels.length > 1) {
+    createComments(levels, 0, "", comments);
+  }
+
+  while (comments.length > 0) {
+    newLines.push(`${' '.repeat((levels.length - 1) * 2)}// ${comments.pop()}`);
+  }
+
+  while (linesToAddBack.length > 0) {
+    const lineToAddBack = linesToAddBack.pop();
+
+    if (lineToAddBack) {
+      newLines.push(lineToAddBack);
+    }
   }
 }
 

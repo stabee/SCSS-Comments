@@ -18,13 +18,14 @@ export function activate(context: vscode.ExtensionContext) {
       let text = editor.document.getText();
       let lines = text.split(/\r?\n/);
       let newLines: Array<string> = [];
+      const levels: Array<Array<string>> = [];
 
       lines.forEach((line, index) => {
         newLines.push(line);
 
         if (line.trim().endsWith('{') || line.trim().endsWith('}')) {
           // Backtrack up the file to find where to insert a comment
-          backtrack(newLines, index);
+          backtrack(newLines, index, levels);
         }
       });
 

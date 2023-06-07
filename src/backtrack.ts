@@ -49,13 +49,27 @@ function backtrackRecursive(
     return;
   }
 
-  // Reached the top of the file, a comment, or an '@' - add back all lines and do not create a comment
+  // Reached the top of the file or a comment - add back all lines and do not create a comment
   if (
     lineNumber <= 0
     || (currLine.trim().startsWith('//') && !replaceExistingComments)
     || currLine.trim().endsWith('*/')
     || currLine.trim().startsWith('/*')
   ) {
+    // If first line is a block, add it to the levels array
+    if (currLine.trim().endsWith('{') && lineNumber === 0) {
+      const lineToAddBack = newLines.pop();
+      const commentToMake = lineToAddBack?.split('{')[0].trim();
+
+      if (commentToMake) {
+        levels.push([commentToMake?.trim()]);
+      }
+
+      if (lineToAddBack) {
+        linesToAddBack.push(lineToAddBack);
+      }
+    }
+
     while (linesToAddBack.length > 0) {
       const lineToAddBack = linesToAddBack.pop();
 
